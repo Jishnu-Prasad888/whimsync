@@ -22,7 +22,8 @@ services:
     container_name: whimsync-redis
     restart: unless-stopped
     # Memory limits below assume a host with 4GB RAM / 50GB storage that also
-    # maxmemory (512mb) is roughly an eighth of RAM; the container limit (768m) is ~1.5x that to leave room for
+    # runs Postgres, MinIO and the app. maxmemory (512mb) is roughly an eighth
+    # of RAM; the container limit (768m) is ~1.5x that to leave room for
     # snapshot fork overhead and fragmentation. noeviction is used so queued or
     # persisted data is never silently dropped. Adjust if the host specs change.
     command: valkey-server --save 60 1 --loglevel warning --maxmemory 512mb --maxmemory-policy noeviction
@@ -41,7 +42,9 @@ services:
       retries: 5
 
   minio:
-    image: pgsty/silo:latest
+    # Silo: community-maintained fork of MinIO (upstream minio/minio was
+    # archived Apr 2026). Pin to a release tag; never use :latest.
+    image: pgsty/silo:RELEASE.2026-11-12T00-00-00Z
     container_name: whimsync-minio
     restart: unless-stopped
     command: server /data --console-address ":9001"
@@ -54,14 +57,14 @@ services:
     volumes:
       - minio_data:/data
     healthcheck:
-      test: ["CMD", "mc", "ready", "local"]
+      test: ["CMD", "mcli", "ready", "local"]
       interval: 5s
       timeout: 5s
       retries: 10
       start_period: 15s
 
   minio-init:
-    image: pgsty/silo:latest
+    image: pgsty/mc:RELEASE.2026-11-12T00-00-00Z
     container_name: whimsync-minio-init
     restart: "no"
     depends_on:

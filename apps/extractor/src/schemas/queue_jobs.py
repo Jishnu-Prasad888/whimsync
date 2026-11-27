@@ -22,7 +22,7 @@ class DocumentParsingJobData(BaseQueueJob):
     user_id: str
     entity_key: str | None = None
     session_id: str | None = None
-    tier: Literal["fast", "smart", "max"] | None = "smart"
+    tier: Literal["balanced", "max"] | None = "balanced"
 
 
 class ChunkingJobData(BaseQueueJob):

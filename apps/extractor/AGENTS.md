@@ -11,7 +11,7 @@ For architectural rationale, strategy details, and environment variables, see [R
 # Testing (run from apps/extractor/)
 uv run pytest                                             # Run all pytest test suites
 uv run pytest tests/test_complexity.py                    # Run a single test file
-uv run pytest -k "test_fast"                              # Run tests matching a name pattern
+uv run pytest -k "test_parse_tier"                        # Run tests matching a name pattern
 
 # Linting & Formatting (run from apps/extractor/)
 uv run ruff check .                                       # Lint Python code with Ruff
@@ -41,8 +41,7 @@ uv run ruff format .                                      # Format Python code
    - Persists `converted.pdf` to MinIO (`uploads/{tenantId}/{namespace}/{ingestionId}/converted.pdf`).
    - Immediately `unlink()` temporary raw office files to minimize disk footprint.
 2. **Strategy Tiers (`src/parsing/strategies/`):**
-   - **`Fast`:** Deterministic PyMuPDF4LLM extraction with inline link injection.
-   - **`Smart`:** Multi-signal complexity analyzer (`complexity.py`). Digital pages use PyMuPDF4LLM; complex, scanned, or vector table pages route to Gemini VLM. Charts in digital pages are enriched via VLM.
+   - **`Balanced`** *(Default)*: Multi-signal complexity analyzer (`complexity.py`). Digital pages use PyMuPDF4LLM; complex, scanned, or vector table pages route to Gemini VLM. Charts in digital pages are enriched via VLM.
    - **`Max`:** Vision-dominant layout parsing routing non-trivial pages to Gemini VLM.
 3. **VLM Concurrency & Rate Limiting (`services/vlm_service.py`):**
    - Governed by `asyncio.Semaphore(settings.VLM_CONCURRENCY)`.

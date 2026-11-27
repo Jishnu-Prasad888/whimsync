@@ -12,12 +12,12 @@ from ..image_replacer import enrich_markdown_images
 from ..link_injector import inject_links_inline
 from .base import BaseParsingStrategy
 
-logger = get_logger("smart_strategy")
+logger = get_logger("balanced_strategy")
 
 
-class SmartParsingStrategy(BaseParsingStrategy):
+class BalancedParsingStrategy(BaseParsingStrategy):
     """
-    Smart Tier: Multi-signal complexity analysis dynamically routes clean digital pages
+    Balanced Tier: Multi-signal complexity analysis dynamically routes clean digital pages
     to PyMuPDF4LLM and complex/scanned/table-heavy pages to Gemini VLM.
     """
 
@@ -29,7 +29,7 @@ class SmartParsingStrategy(BaseParsingStrategy):
     ) -> ParsedDocument:
         total_pages = len(doc)
         logger.info(
-            f"[SmartTier] Analyzing complexity across {total_pages} pages for {pdf_path.name}"
+            f"[BalancedTier] Analyzing complexity across {total_pages} pages for {pdf_path.name}"
         )
 
         # 1. Analyze complexity for each page
@@ -52,11 +52,11 @@ class SmartParsingStrategy(BaseParsingStrategy):
             if should_vlm and can_use_vlm:
                 pages_to_vlm.append(c.page_number)
                 logger.info(
-                    f"[SmartTier] Page {c.page_number + 1} routed to VLM (reasons: {c.reasons})"
+                    f"[BalancedTier] Page {c.page_number + 1} routed to VLM (reasons: {c.reasons})"
                 )
             else:
                 logger.info(
-                    f"[SmartTier] Page {c.page_number + 1} routed to digital extraction (reasons: {c.reasons or 'clean'})"
+                    f"[BalancedTier] Page {c.page_number + 1} routed to digital extraction (reasons: {c.reasons or 'clean'})"
                 )
 
         # 3. Global extraction for digital pages (extracts embedded images for VLM enrichment)
@@ -98,7 +98,7 @@ class SmartParsingStrategy(BaseParsingStrategy):
             c = complexities[i]
             # If the page was flagged as completely empty, emit nothing
             if c.is_empty:
-                logger.info(f"[SmartTier] Page {i + 1} is empty. Skipping.")
+                logger.info(f"[BalancedTier] Page {i + 1} is empty. Skipping.")
                 continue
 
             if i in vlm_results and vlm_results[i].strip():
@@ -118,16 +118,16 @@ class SmartParsingStrategy(BaseParsingStrategy):
 
         full_markdown = "\n\n".join(part for part in assembled_pages if part)
         logger.info(
-            f"[SmartTier] Completed {pdf_path.name}: {len(full_markdown)} chars "
+            f"[BalancedTier] Completed {pdf_path.name}: {len(full_markdown)} chars "
             f"({len(pages_to_vlm)} VLM pages, {total_pages - len(pages_to_vlm)} digital pages)"
         )
 
         return ParsedDocument(
             markdown=full_markdown,
             total_pages=total_pages,
-            tier_used=ParseTier.SMART,
+            tier_used=ParseTier.BALANCED,
             metadata={
-                "strategy": "hybrid_smart",
+                "strategy": "hybrid_balanced",
                 "vlm_page_count": len(pages_to_vlm),
                 "vlm_pages": pages_to_vlm,
             },

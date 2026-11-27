@@ -78,7 +78,7 @@ export const UploadMemorySchema = z.object({
   namespace: z.string().default("default"),
   entityKey: z.string().nullable().optional(),
   sessionId: z.string().nullable().optional(),
-  tier: z.enum(["fast", "smart", "max"]).default("smart"),
+  tier: z.enum(["balanced", "max"]).default("balanced"),
 });
 
 export type UploadMemoryInput = z.infer<typeof UploadMemorySchema>;

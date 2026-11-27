@@ -34,7 +34,7 @@ export interface IngestFilesInput {
   userId: string;
   entityKey?: string | null;
   sessionId?: string | null;
-  tier?: "fast" | "smart" | "max";
+  tier?: "smart" | "max";
 }
 
 export interface FileIngestResult {

@@ -10,7 +10,7 @@
 - **Fact & Relationship Extraction:** Automatically extracts atomic facts, semantic relationship edges (`UPDATES`, `EXTENDS`, `SUPPORTS`, `CONTRADICTS`), and entity knowledge from text and documents.
 - **Temporal Memory & Contradiction Resolution:** Detects when new information invalidates or updates prior understanding, marking stale claims as superseded while preserving historical lineage.
 - **Multimodal Document Processing:** Ingests complex files—including PDFs, Word documents (`.docx`), slide decks (`.pptx`), markdown, and source code.
-- **Tier-Based Parsing for Controlled Cost:** Routes documents across deterministic extraction, multi-signal layout complexity analysis, or visual layout models (VLM) to balance speed, fidelity, and cost.
+- **Tier-Based Parsing for Controlled Cost:** Routes documents through multi-signal layout complexity analysis (deterministic extraction for clean digital pages, VLM for scanned or complex ones) or vision-first VLM parsing to balance speed, fidelity, and cost.
 - **Verifiable Evidence & Citations:** Every extracted claim links directly to immutable character offset ranges in source material for transparent verification.
 
 ---

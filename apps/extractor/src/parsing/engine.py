@@ -5,7 +5,6 @@ import pymupdf
 from ..schemas.parsing import ParsedDocument, ParseTier
 from ..utils.logger import get_logger
 from .strategies.base import BaseParsingStrategy
-from .strategies.fast import FastParsingStrategy
 from .strategies.max import MaxParsingStrategy
 from .strategies.smart import SmartParsingStrategy
 
@@ -15,12 +14,11 @@ logger = get_logger("parsing_engine")
 class ParsingEngine:
     """
     Central orchestration engine for PDF document layout parsing.
-    Dispatches to Fast, Smart, or Max tier strategies based on configuration.
+    Dispatches to Smart or Max tier strategies based on configuration.
     """
 
     def __init__(self):
         self._strategies: dict[ParseTier, BaseParsingStrategy] = {
-            ParseTier.FAST: FastParsingStrategy(),
             ParseTier.SMART: SmartParsingStrategy(),
             ParseTier.MAX: MaxParsingStrategy(),
         }

@@ -46,11 +46,10 @@ flowchart TD
         PyExtractor --> OfficeCheck{"Office File?"}
         OfficeCheck -->|Yes| LibreOffice["LibreOffice: Convert to PDF"]
         OfficeCheck -->|No / Converted| StrategyTier{"Parsing Tier"}
-        StrategyTier -->|Fast| PyMuPDF4LLM["PyMuPDF4LLM (Deterministic OCR)"]
         StrategyTier -->|Smart| ComplexityAnalysis["Complexity Analyzer<br/>(Scans / Vector Grids / Garbled)"]
         StrategyTier -->|Max| VLMFirst["Vision-First Gemini VLM"]
         ComplexityAnalysis -->|Complex Pages| VLM["Gemini VLM (Image-to-Markdown)"]
-        ComplexityAnalysis -->|Digital Pages| PyMuPDF4LLM
+        ComplexityAnalysis -->|Digital Pages| PyMuPDF4LLM["PyMuPDF4LLM (Digital Text Extraction)"]
         PyMuPDF4LLM --> LinkInjector["Link Injector (PDF Annotations -> MD links)"]
         VLM --> LinkInjector
         LinkInjector --> StoreMD["Store document.md in MinIO"]
@@ -145,7 +144,6 @@ uploads/{tenantId}/{namespace}/{ingestionId}/
 ### Stage 2: Binary Document Parser (`apps/extractor`)
 - **Office Conversion:** Headless LibreOffice converts `.docx`, `.pptx`, `.xlsx` to standardized PDF.
 - **Tier-Based Layout Parsing:**
-  - `Fast`: Deterministic PyMuPDF4LLM extraction with inline link injection.
   - `Smart`: Dynamic page complexity analysis (`text_coverage`, `image_coverage`, `vg_coverage`, `is_garbled`, `full_page_image`). Clean digital pages use PyMuPDF4LLM; complex, scanned, or vector table pages route to Gemini VLM with GitHub-flavored table layout instructions.
   - `Max`: Vision-dominant layout parsing routing non-trivial pages to Gemini VLM.
 - **Link Injection:** Extracts PDF annotation URIs and injects them as Markdown links.

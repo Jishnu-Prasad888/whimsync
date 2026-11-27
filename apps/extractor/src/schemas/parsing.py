@@ -5,7 +5,6 @@ from pydantic import BaseModel, Field
 
 
 class ParseTier(StrEnum):
-    FAST = "fast"
     SMART = "smart"
     MAX = "max"
 

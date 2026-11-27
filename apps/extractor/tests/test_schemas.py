@@ -57,10 +57,8 @@ def test_chunking_job_data_camel_case_serialization():
 
 
 def test_parse_tier_enum():
-    assert ParseTier.FAST == "fast"
     assert ParseTier.SMART == "smart"
     assert ParseTier.MAX == "max"
-    assert ParseTier("fast") == ParseTier.FAST
     assert ParseTier("smart") == ParseTier.SMART
     assert ParseTier("max") == ParseTier.MAX
 

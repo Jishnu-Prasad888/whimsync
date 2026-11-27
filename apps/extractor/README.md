@@ -13,7 +13,6 @@ The `apps/extractor` service is an asynchronous Python worker responsible for co
    - Converts `.docx`, `.pptx`, `.xlsx` to normalized PDF via headless LibreOffice (`soffice --headless --convert-to pdf`).
    - Persists normalized PDF as `converted.pdf` in S3 / MinIO for downstream citation alignment.
 2. **Tier-Based Parsing Strategy:**
-   - **`Fast`**: PyMuPDF4LLM extraction with native OCR and inline link injection. (Zero LLM cost, sub-second).
    - **`Smart`** *(Default)*: Multi-signal complexity analyzer (`text_coverage`, `image_coverage`, `vg_coverage`, `is_garbled`, `full_page_image`). Digital pages are parsed with PyMuPDF4LLM; scanned, garbled, or vector grid table pages are routed to Google Gemini VLM with structured GFM table prompts.
    - **`Max`**: Vision-dominant layout parsing. Dispatches all non-trivial pages to Gemini VLM.
 3. **Queue Plumbing:**

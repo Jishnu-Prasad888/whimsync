@@ -34,7 +34,7 @@ export interface IngestFilesInput {
   userId: string;
   entityKey?: string | null;
   sessionId?: string | null;
-  tier?: "smart" | "max";
+  tier?: "balanced" | "max";
 }
 
 export interface FileIngestResult {
@@ -207,7 +207,7 @@ export class MemoryIngestService {
         fileHash,
         totalChunks: 0, // Placeholder, updated by TS worker after chunking finishes
         status: "pending",
-        parsingTier: input.tier ?? "smart",
+        parsingTier: input.tier ?? "balanced",
       });
 
       if (isBinary) {
@@ -222,7 +222,7 @@ export class MemoryIngestService {
           userId: input.userId,
           entityKey: input.entityKey ?? null,
           sessionId: input.sessionId ?? null,
-          tier: input.tier ?? "smart",
+          tier: input.tier ?? "balanced",
         };
 
         await documentParsingQueue.add(DOCUMENT_PARSING_QUEUE, jobPayload);

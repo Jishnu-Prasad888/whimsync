@@ -35,7 +35,7 @@ async def process_parsing_job(job: Job, token: str | None = None) -> None:
 
     ingestion_id = data.ingestion_id
     ext = data.file_extension.lower()
-    tier = data.tier or ParseTier.SMART
+    tier = data.tier or ParseTier.BALANCED
 
     logger.info(
         f"Processing ingestion={ingestion_id} file={data.file_name} "

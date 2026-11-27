@@ -41,7 +41,7 @@ uv run ruff format .                                      # Format Python code
    - Persists `converted.pdf` to MinIO (`uploads/{tenantId}/{namespace}/{ingestionId}/converted.pdf`).
    - Immediately `unlink()` temporary raw office files to minimize disk footprint.
 2. **Strategy Tiers (`src/parsing/strategies/`):**
-   - **`Smart`:** Multi-signal complexity analyzer (`complexity.py`). Digital pages use PyMuPDF4LLM; complex, scanned, or vector table pages route to Gemini VLM. Charts in digital pages are enriched via VLM.
+   - **`Balanced`** *(Default)*: Multi-signal complexity analyzer (`complexity.py`). Digital pages use PyMuPDF4LLM; complex, scanned, or vector table pages route to Gemini VLM. Charts in digital pages are enriched via VLM.
    - **`Max`:** Vision-dominant layout parsing routing non-trivial pages to Gemini VLM.
 3. **VLM Concurrency & Rate Limiting (`services/vlm_service.py`):**
    - Governed by `asyncio.Semaphore(settings.VLM_CONCURRENCY)`.

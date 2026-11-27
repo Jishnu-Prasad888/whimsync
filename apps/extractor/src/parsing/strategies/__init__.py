@@ -1,11 +1,11 @@
 """Parsing strategies package."""
 
+from .balanced import BalancedParsingStrategy
 from .base import BaseParsingStrategy
 from .max import MaxParsingStrategy
-from .smart import SmartParsingStrategy
 
 __all__ = [
     "BaseParsingStrategy",
-    "SmartParsingStrategy",
+    "BalancedParsingStrategy",
     "MaxParsingStrategy",
 ]

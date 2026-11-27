@@ -13,7 +13,7 @@ def test_document_parsing_job_data_camel_case_deserialization():
         "userId": "user_456",
         "entityKey": "customer_999",
         "sessionId": "session_abc",
-        "tier": "smart",
+        "tier": "balanced",
     }
 
     job_data = DocumentParsingJobData.model_validate(raw_payload)
@@ -27,7 +27,7 @@ def test_document_parsing_job_data_camel_case_deserialization():
     assert job_data.user_id == "user_456"
     assert job_data.entity_key == "customer_999"
     assert job_data.session_id == "session_abc"
-    assert job_data.tier == "smart"
+    assert job_data.tier == "balanced"
 
 
 def test_chunking_job_data_camel_case_serialization():
@@ -57,9 +57,9 @@ def test_chunking_job_data_camel_case_serialization():
 
 
 def test_parse_tier_enum():
-    assert ParseTier.SMART == "smart"
+    assert ParseTier.BALANCED == "balanced"
     assert ParseTier.MAX == "max"
-    assert ParseTier("smart") == ParseTier.SMART
+    assert ParseTier("balanced") == ParseTier.BALANCED
     assert ParseTier("max") == ParseTier.MAX
 
 

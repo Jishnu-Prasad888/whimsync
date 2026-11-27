@@ -38,7 +38,7 @@ All authenticated endpoints require an authenticated identity and an explicit or
   - Body: `{ "text": string, "namespace"?: string, "entityKey"?: string, "sessionId"?: string }`
   - Returns `202 Accepted` with `{ ingestionId, episodeId?, status: "accepted" }`.
 - `POST /v1/memories/upload`: Accepts `multipart/form-data` with one or more files in the `file` field.
-  - Form fields: `file` (files), `namespace`, `entityKey`, `sessionId`, `tier` (`"smart" | "max"`).
+  - Form fields: `file` (files), `namespace`, `entityKey`, `sessionId`, `tier` (`"balanced" | "max"`, default `"balanced"`).
   - Returns `202 Accepted` with per-file status (`"processing"` or `"existing"` if deduplicated).
 
 ### Organizations (`/v1/orgs`)

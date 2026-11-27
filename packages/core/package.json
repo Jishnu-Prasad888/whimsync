@@ -13,7 +13,7 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "^1.4.4"
   },
   "dependencies": {
     "@types/node": "^22.20.3",

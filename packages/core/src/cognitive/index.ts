@@ -183,6 +183,15 @@ export type CognitiveExtractionResult = z.infer<
 >;
 
 /**
+ * JSON Schema for `CognitiveExtractionResultSchema`, generated with Zod v4's native
+ * converter and sent to Gemini as `responseJsonSchema` to enforce structured output.
+ * (`zod-to-json-schema` does not support Zod v4 and silently emits an empty schema.)
+ */
+export const CognitiveExtractionResultJsonSchema = z.toJSONSchema(
+  CognitiveExtractionResultSchema,
+);
+
+/**
  * Represents a newly extracted claim that has been durably inserted into `memory_claims`
  * (`status = 'pending_review'`) along with its generated embedding and database UUID.
  */

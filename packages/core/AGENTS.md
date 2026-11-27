@@ -6,7 +6,7 @@ Instructions for AI coding agents developing shared contracts, queue payload typ
 
 ## 1. Responsibilities & Exports
 - **Queue Payload Contracts (`src/queue/jobs.ts`):** Authoritative interfaces for BullMQ jobs (`DocumentParsingJobData`, `ChunkingJobData`, `EpisodeExtractionJobData`). Any changes here break cross-service communication (`apps/api`, `apps/worker`, `apps/extractor`).
-- **Cognitive Extraction Schemas (`src/cognitive/index.ts`):** Zod schemas (`CognitiveExtractionResultSchema`, `ProposedClaimSchema`, `ProposedMutationSchema`). Must strictly convert to standard JSON Schema via `zod-to-json-schema` for Gemini structured inference.
+- **Cognitive Extraction Schemas (`src/cognitive/index.ts`):** Zod schemas (`CognitiveExtractionResultSchema`, `ProposedClaimSchema`, `ProposedMutationSchema`). Exported as standard JSON Schema via Zod v4's native `z.toJSONSchema` (`CognitiveExtractionResultJsonSchema`) for Gemini structured inference. Do not use `zod-to-json-schema`: it does not support Zod v4 and silently emits an empty schema.
 - **S3 Storage Service (`src/services/storageService.ts`):** Shared Claim Check Pattern client for MinIO/S3.
 
 ---

@@ -39,7 +39,7 @@ bun run lint                                              # Lint with Biome
 
 ## 4. Cognitive Extraction Rules (`src/cognitive/`)
 - **Candidate Prior Retrieval:** Retrieve active candidate claims using PostgreSQL cosine distance (`<=>` operator on `vectors.embedding`) combined with recency ordering (`desc(recordedAt)`), filtered strictly by `tenant_id` and `namespace`.
-- **Single-Call Inference:** Prompts `gemini-2.5-flash` with candidate claims and episode text using `responseSchema: zodToJsonSchema(CognitiveExtractionResultSchema)`. Never split claim generation and mutation proposals into separate LLM calls.
+- **Single-Call Inference:** Prompts `LLM_MODEL` with candidate claims and episode text using `responseJsonSchema: CognitiveExtractionResultJsonSchema` (from `@whimsync/core`). Never split claim generation and mutation proposals into separate LLM calls.
 - **Pending Review Invariant:** Every extracted claim must be durably written to `memory_claims` with `status = 'pending_review'` along with its vector embedding in `vectors` before mutation evaluation runs. `pending_review` claims must never be retrievable in query endpoints.
 
 ---

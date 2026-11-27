@@ -11,7 +11,7 @@ For architectural rationale, strategy details, and environment variables, see [R
 # Testing (run from apps/extractor/)
 uv run pytest                                             # Run all pytest test suites
 uv run pytest tests/test_complexity.py                    # Run a single test file
-uv run pytest -k "test_fast"                              # Run tests matching a name pattern
+uv run pytest -k "test_parse_tier"                        # Run tests matching a name pattern
 
 # Linting & Formatting (run from apps/extractor/)
 uv run ruff check .                                       # Lint Python code with Ruff

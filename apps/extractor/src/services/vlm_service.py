@@ -1,11 +1,14 @@
 import asyncio
 import os
+import random
+import re
 from pathlib import Path
 
 from PIL import Image
 
 from ..config import settings
 from ..utils.logger import get_logger
+from ..utils.rate_limiter import RequestRateLimiter
 
 logger = get_logger("vlm_service")
 
@@ -45,6 +48,7 @@ class VLMService:
         concurrency: int | None = None,
         delay_seconds: float | None = None,
         max_retries: int | None = None,
+        rpm: float | None = None,
     ):
         self.api_key = api_key or settings.GEMINI_API_KEY or os.environ.get("GEMINI_API_KEY")
         self.model = model or settings.GEMINI_MODEL
@@ -53,6 +57,9 @@ class VLMService:
         )
         self.max_retries = max_retries if max_retries is not None else settings.VLM_MAX_RETRIES
         self._semaphore = asyncio.Semaphore(concurrency or settings.VLM_CONCURRENCY)
+        # Calls that ultimately failed and yielded empty Markdown (observable by callers/benchmarks).
+        self.failed_calls = 0
+        self.rate_limiter = RequestRateLimiter(rpm if rpm is not None else settings.VLM_RPM)
         self._client = None
 
     def _get_client(self):
@@ -94,6 +101,9 @@ class VLMService:
 
             for attempt in range(self.max_retries + 1):
                 try:
+                    waited = await self.rate_limiter.acquire()
+                    if waited > 0.05:
+                        logger.info(f"VLM rate limiter delayed {image_path.name} by {waited:.1f}s")
                     logger.info(
                         f"Submitting {image_path.name} to Gemini VLM ({self.model}) [attempt {attempt + 1}]..."
                     )
@@ -108,25 +118,62 @@ class VLMService:
 
                 except Exception as e:
                     err_str = str(e).lower()
-                    is_rate_limit = (
-                        "429" in err_str
-                        or "resource_exhausted" in err_str
-                        or "rate limit" in err_str
+                    # Rate limits and transient overload are worth retrying; anything else
+                    # (bad key, unknown model, invalid request) will not succeed on retry.
+                    is_retryable = any(
+                        marker in err_str
+                        for marker in (
+                            "429",
+                            "resource_exhausted",
+                            "rate limit",
+                            "503",
+                            "unavailable",
+                            "overloaded",
+                        )
                     )
 
-                    if is_rate_limit and attempt < self.max_retries:
-                        backoff = (2**attempt) * 1.5
+                    backoff = _retry_delay(str(e), attempt) if is_retryable else 0.0
+                    if is_retryable and backoff > MAX_RETRY_WAIT_SECONDS:
+                        # A multi-minute retryDelay means the quota window (usually the
+                        # daily one) is exhausted; waiting it out would stall the caller.
+                        self.failed_calls += 1
+                        logger.error(
+                            f"Gemini quota exhausted for {image_path.name}: server asked to wait "
+                            f"{backoff:.0f}s (> {MAX_RETRY_WAIT_SECONDS:.0f}s cap); giving up."
+                        )
+                        return ""
+                    if is_retryable and attempt < self.max_retries:
                         logger.warning(
-                            f"Gemini VLM rate limit hit on {image_path.name}. "
+                            f"Gemini VLM transient error on {image_path.name}. "
                             f"Backing off for {backoff:.1f}s before retry {attempt + 2}/{self.max_retries + 1}..."
                         )
                         await asyncio.sleep(backoff)
                     else:
+                        self.failed_calls += 1
                         logger.error(
                             f"Failed to process image {image_path} with VLM (attempt {attempt + 1}): {e}"
                         )
-                        if attempt >= self.max_retries:
-                            return ""
+                        return ""
+
+
+# Longest backoff worth waiting for. Per-minute limits ask for <60s; anything longer
+# indicates an exhausted daily quota, which no retry will fix in a useful timeframe.
+MAX_RETRY_WAIT_SECONDS = 120.0
+
+_RETRY_DELAY_RE = re.compile(r"retry(?:Delay|_delay)['\"]?\s*[:=]\s*['\"]?(\d+(?:\.\d+)?)s", re.I)
+
+
+def _retry_delay(error_text: str, attempt: int) -> float:
+    """
+    Backoff for a rate-limited call: honours the server's `retryDelay` hint when
+    present, otherwise exponential (1.5s, 3s, 6s, ...), plus up to 25% jitter so
+    concurrent callers don't retry in lockstep.
+    """
+    base = (2**attempt) * 1.5
+    match = _RETRY_DELAY_RE.search(error_text)
+    if match:
+        base = max(base, float(match.group(1)))
+    return base * (1 + random.uniform(0, 0.25))
 
 
 vlm_service = VLMService()

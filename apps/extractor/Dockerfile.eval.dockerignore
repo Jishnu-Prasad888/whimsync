@@ -1,0 +1,6 @@
+# Build context for Dockerfile.eval: only the files the image copies.
+*
+!pyproject.toml
+!uv.lock
+!src/
+**/__pycache__

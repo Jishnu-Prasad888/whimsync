@@ -32,8 +32,11 @@ class Settings(BaseSettings):
 
     # Google Gemini VLM
     GEMINI_API_KEY: str | None = None
-    GEMINI_MODEL: str = "gemini-2.5-flash"
+    GEMINI_MODEL: str = "gemini-3.5-flash"
     VLM_CONCURRENCY: int = 3
+    # Max VLM requests started per minute across this process (0 = unlimited).
+    # Free-tier Gemini keys are capped at ~15 RPM per model.
+    VLM_RPM: float = 0
     VLM_DELAY_SECONDS: float = 0.5
     VLM_MAX_RETRIES: int = 3
 
